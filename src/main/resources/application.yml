@@ -8,6 +8,13 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+  ai:
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        dimensions: 1536
+        distance-type: COSINE_DISTANCE
+        max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
   profiles:
     active: local
 server:
