@@ -116,9 +116,9 @@ public class LoveApp {
                         new MyLoggerAdvisor()
                 )
                 //基于本地RAG知识库的实现
-//                .advisors(new QuestionAnswerAdvisor(loveAppVector))
+                .advisors(new QuestionAnswerAdvisor(loveAppVector))
                 // 基于阿里的远程RAG的实现
-                .advisors(loveAppRagCloudAdvisor)
+//                .advisors(loveAppRagCloudAdvisor)
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
