@@ -1,9 +1,0 @@
-spring:
-  ai:
-    dashscope:
-      api-key: sk-ea515972e7d34ae587a76d9980d89326
-  datasource:
-    url: jdbc:mysql://localhost:3306/testai?useSSL=false&serverTimezone=UTC
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
