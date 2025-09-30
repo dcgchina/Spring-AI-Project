@@ -1,4 +1,4 @@
-package com.dg.springaidemo.controller.demo;
+package com.dg.springaidemo.demo;
 
 import dev.langchain4j.community.model.dashscope.QwenChatModel;
 import dev.langchain4j.model.chat.ChatLanguageModel;

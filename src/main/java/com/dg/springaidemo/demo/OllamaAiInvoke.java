@@ -1,4 +1,4 @@
-package com.dg.springaidemo.controller.demo;
+package com.dg.springaidemo.demo;
 
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.messages.AssistantMessage;
