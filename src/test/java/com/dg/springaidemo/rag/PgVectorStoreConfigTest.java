@@ -12,11 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @SpringBootTest
 class PgVectorStoreConfigTest {
 
     @Resource
-    private VectorStore pgVectorStoreConfig;
+    private VectorStore pgVectorVectorStore;
 
     @Test
     void pgVectorVectorStore() {
@@ -25,10 +26,9 @@ class PgVectorStoreConfigTest {
                 new Document("晨光的恋爱手册"),
                 new Document("晨光这个小伙子比较帅气", Map.of("meta2", "meta2")));
         // 添加文档
-        pgVectorStoreConfig.add(documents);
+        pgVectorVectorStore.add(documents);
         // 相似度查询
-        List<Document> results = pgVectorStoreConfig.similaritySearch(SearchRequest.builder().query("怎么在恋爱过程中保持亲密度啊").topK(3).build());
+        List<Document> results = pgVectorVectorStore.similaritySearch(SearchRequest.builder().query("怎么在恋爱过程中保持亲密度啊").topK(3).build());
         Assertions.assertNotNull(results);
     }
 }
-

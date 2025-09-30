@@ -1,8 +1,6 @@
 package com.dg.springaidemo.rag;
 
-import com.dg.springaidemo.app.LoveApp;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.Loader;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.SimpleVectorStore;
@@ -11,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
-import java.util.Vector;
 
 /**
  * 向量数据库配置（初始化基于内存的数据库 Bean）
