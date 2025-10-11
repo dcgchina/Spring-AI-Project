@@ -1,10 +1,8 @@
 package com.dg.springaidemo.app;
 
-import com.dg.springaidemo.advisor.CheckPromptAdvisor;
 import com.dg.springaidemo.advisor.MyLoggerAdvisor;
-import com.dg.springaidemo.chatmemory.DatabaseChatMemory;
 import com.dg.springaidemo.chatmemory.FileBaseChatMemory;
-import com.dg.springaidemo.rag.LoveAppRagCloudAdvisorConfig;
+import com.dg.springaidemo.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -14,7 +12,9 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,6 +33,15 @@ public class LoveApp {
 
     @Autowired
     private Advisor loveAppRagCloudAdvisor;
+
+    @Autowired
+    private PgVectorStore pgVectorStore;
+
+    @Resource
+    private QueryRewriter queryRewriter;
+
+    @Resource
+    private ToolCallback[] allTools;
 
     private static final String SYSTEM_PROMPT = "扮演深耕恋爱心理领域的专家。开场向用户表明身份，告知用户可倾诉恋爱难题。" +
             "围绕单身、恋爱、已婚三种状态提问：单身状态询问社交圈拓展及追求心仪对象的困扰；" +
@@ -107,23 +116,53 @@ public class LoveApp {
     }
 
     public String doChatWithRag(String message,String chatId){
+        String rewriterMsg = queryRewriter.doQueryRewriter(message);
         ChatResponse chatResponse = chatClient
                 .prompt()
-                .user(message)
+                .user(rewriterMsg)
                 .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY,chatId)
                         .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY,10))
+                // 开启日志，便于观察效果
                 .advisors(
                         new MyLoggerAdvisor()
                 )
-                //基于本地RAG知识库的实现
+                // 基于本地RAG知识库的实现
                 .advisors(new QuestionAnswerAdvisor(loveAppVector))
                 // 基于阿里的远程RAG的实现
 //                .advisors(loveAppRagCloudAdvisor)
+                // 应用RAG 检索增强服务（基于PgVector向量存储）
+//                .advisors(new QuestionAnswerAdvisor(pgVectorStore))
+                // 基于自定义的RAG 检索增强服务（文档查询器 + 上下文增强）
+//                .advisors(new LoveAppRagCustomAdvisorFactory().createLoveAppRagCustomAdvisor(
+//                        loveAppVector, "单身"
+//                        ))
                 .call()
                 .chatResponse();
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: {}", content);
 
+        return content;
+    }
+
+    /**
+     * 实现ai大模型调用定义的多种工具
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public String doChatWithTools(String message, String chatId) {
+        ChatResponse response = chatClient
+                .prompt()
+                .user(message)
+                .advisors(spec -> spec.param(CHAT_MEMORY_CONVERSATION_ID_KEY, chatId)
+                        .param(CHAT_MEMORY_RETRIEVE_SIZE_KEY, 10))
+                // 开启日志，便于观察效果
+                .advisors(new MyLoggerAdvisor())
+                .tools(allTools)
+                .call()
+                .chatResponse();
+        String content = response.getResult().getOutput().getText();
+        log.info("content: {}", content);
         return content;
     }
 
