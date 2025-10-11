@@ -17,6 +17,8 @@ spring:
         max-document-batch-size: 10000 # Optional: Maximum number of documents per batch
   profiles:
     active: local
+  logging:
+    level: debug
 server:
   port: 8100
   servlet:
